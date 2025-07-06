@@ -22,6 +22,6 @@ for path in $(cat $SCRIPT_DIR/MANIFEST); do
   fi
   
   ln -s "$target" "$destination" 
-  echo "SUCCESS: $target -> $destination"
+  echo "SUCCESS: $destination -> $target"
 done
 
