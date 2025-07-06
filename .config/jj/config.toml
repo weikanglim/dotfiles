@@ -1,0 +1,11 @@
+[ui]
+default-command = "log"
+
+[user]
+name = "Wei Lim"
+email = "weikanglim@gmail.com"
+
+[aliases]
+tug = ["bookmark", "move", "--from", "heads(::to & bookmarks())", "--to", "@-"]
+
+

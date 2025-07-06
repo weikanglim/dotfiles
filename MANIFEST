@@ -1,3 +1,4 @@
 .tmux.conf
 .local/bin/tmux-sessionizer
 .config/nvim
+.config/jj
