@@ -2,3 +2,4 @@
 .local/bin/tmux-sessionizer
 .config/nvim
 .config/jj
+.config/doom
