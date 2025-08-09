@@ -75,8 +75,78 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+;; Writeroom (zen) settings
+;; Disable line numbers in zen mode
 (after! writeroom-mode
   (add-hook! 'writeroom-mode-enable-hook :append
              (setq-local display-line-numbers nil))
   (add-hook! 'writeroom-mode-disable-hook :append
              (setq-local display-line-numbers t)))
+
+(setq writeroom-width 40)
+
+;; Org-related settings
+;; Hide emphasis marker
+(setq org-hide-emphasis-markers t)
+(setq org-startup-folded t)
+(setq org-directory "~/personal/org")
+
+;; Org - Capture templates
+
+(defun my/week-of-month ()
+  "Return the week number within the current month (1–5)."
+  (let* ((day (string-to-number (format-time-string "%d")))
+         (week (1+ (/ (1- day) 7))))
+    (format "Week %d" week)))
+
+(defun my/org-part-of-day ()
+  "Return Morning/Afternoon/Evening/Night based on current hour."
+  (let ((h (string-to-number (format-time-string "%H"))))
+    (cond ((< h 5)  "Night")
+          ((< h 12) "Morning")
+          ((< h 17) "Afternoon")
+          ((< h 21) "Evening")
+          (t        "Night"))))
+
+(defun my/org-journal-target ()
+  "Jump to org-directory/journal.org and ensure headings:
+* Month Year
+** Week N (month-based)
+*** m/d/YYYY, Weekday
+Place point under the date for a new entry."
+  (let* ((file (expand-file-name "journal.org" org-directory))
+         (month (format-time-string "%B %Y"))         ;; e.g., "August 2025"
+         (week  (my/week-of-month))                   ;; e.g., "Week 3"
+         (date  (format-time-string "%-m/%-d/%Y, %A"))) ;; e.g., "8/8/2025, Friday"
+    (set-buffer (org-capture-target-buffer file))
+    (org-capture-put-target-region-and-position)
+    (widen)
+    ;; Ensure * Month Year
+    (goto-char (point-min))
+    (unless (re-search-forward (format "^\\* %s\\s-*$" (regexp-quote month)) nil t)
+      (goto-char (point-max)) (unless (bolp) (insert "\n"))
+      (insert "* " month "\n"))
+    (org-back-to-heading t)
+
+    ;; Ensure ** Week N under Month
+    (org-narrow-to-subtree)
+    (unless (re-search-forward (format "^\\*\\* %s\\s-*$" (regexp-quote week)) nil t)
+      (goto-char (point-max)) (unless (bolp) (insert "\n"))
+      (insert "** " week "\n"))
+    (org-back-to-heading t)
+
+    ;; Ensure *** Date under Week
+    (org-narrow-to-subtree)
+    (unless (re-search-forward (format "^\\*\\*\\* %s\\s-*$" (regexp-quote date)) nil t)
+      (goto-char (point-max)) (unless (bolp) (insert "\n"))
+      (insert "*** " date "\n"))
+    (widen)
+    ;; Position at end of the date subtree so the capture entry becomes a child
+    (re-search-backward (format "^\\*\\*\\* %s\\s-*$" (regexp-quote date)))
+    (org-end-of-subtree t t)))
+
+(after! org
+  (add-to-list 'org-capture-templates
+               '("j" "Journal" entry
+                 (function my/org-journal-target)
+                 "* %(my/org-part-of-day) [%<%-I:%M%p>]\n%?\n")))
