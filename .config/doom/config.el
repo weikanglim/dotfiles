@@ -102,11 +102,11 @@
 (defun my/org-part-of-day ()
   "Return Morning/Afternoon/Evening/Night based on current hour."
   (let ((h (string-to-number (format-time-string "%H"))))
-    (cond ((< h 5)  "Night")
+    (cond ((< h 5)  "Early Morning")
           ((< h 12) "Morning")
           ((< h 17) "Afternoon")
           ((< h 21) "Evening")
-          (t        "Night"))))
+          (t        "Late Night"))))
 
 (defun my/org-journal-target ()
   "Jump to org-directory/journal.org and ensure headings:
