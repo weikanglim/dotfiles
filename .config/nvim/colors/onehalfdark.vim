@@ -2,8 +2,7 @@
 "   Name:        One Half Dark
 "   Author:      Son A. Pham <sp@sonpham.me>
 "   Url:         https://github.com/sonph/onehalf
-"   License:     The MIT License (MIT)
-"
+"   License:     The MIT License (MIT) "
 "   A dark vim color scheme based on Atom's One. See github.com/sonph/onehalf
 "   for installation instructions, a light color scheme, versions for other
 "   editors/terminals, and a matching theme for vim-airline.
@@ -15,7 +14,6 @@ syntax reset
 
 let g:colors_name="onehalfdark"
 let colors_name="onehalfdark"
-
 
 let s:black       = { "gui": "#282c34", "cterm": "236" }
 let s:red         = { "gui": "#e06c75", "cterm": "168" }
