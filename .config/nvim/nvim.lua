@@ -1,46 +1,62 @@
-print("Hello from init.lua")
-
 vim.pack.add({
-    { src = 'https://github.com/neovim/nvim-lspconfig' },
     { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
-    { src = 'https://github.com/stevearc/conform.nvim' },
     { src = 'https://github.com/folke/snacks.nvim' },
+    { src = 'https://github.com/ibhagwan/fzf-lua' },
 })
 
--- Format on save...
-require('conform').setup()
-require('snacks').setup()
-require('nvim-treesitter').setup()
--- require('nvim-lspconfig').setup()
+vim.lsp.enable({
+    "lua_ls",
+    "gopls",
+})
 
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("SnacksPickerHLFix", { clear = true }),
-  callback = function()
-    local function link(src, dst)
-      pcall(vim.api.nvim_set_hl, 0, src, { link = dst })
+require("nvim-treesitter.configs").setup({
+  ensure_installed = {
+    'lua',
+    'go',
+    'zig'
+  },
+  auto_install = false,
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
+  indent = {
+    enable = true,
+  },
+})
+
+vim.api.nvim_create_autocmd('PackChanged', {
+  desc = 'Handle nvim-treesitter updates',
+  group = vim.api.nvim_create_augroup('nvim-treesitter-pack-changed-update-handler', { clear = true }),
+  callback = function(event)
+    if event.data.kind == 'update' then
+      vim.notify('nvim-treesitter updated, running TSUpdate...', vim.log.levels.INFO)
+      ---@diagnostic disable-next-line: param-type-mismatch
+      local ok = pcall(vim.cmd, 'TSUpdate')
+      if ok then
+        vim.notify('TSUpdate completed successfully!', vim.log.levels.INFO)
+      else
+        vim.notify('TSUpdate command not available yet, skipping', vim.log.levels.WARN)
+      end
     end
-
-    -- Make floats match your buffer (or swap to bg="NONE" for transparency)
-    local okN, Normal = pcall(vim.api.nvim_get_hl, 0, { name = "Normal", link = false })
-    if okN then
-      vim.api.nvim_set_hl(0, "NormalFloat", { bg = Normal.bg, fg = Normal.fg })
-      vim.api.nvim_set_hl(0, "FloatBorder", { bg = Normal.bg, fg = Normal.fg })
-    end
-
-    -- Link Snacks picker bits to common groups
-    -- link("SnacksPickerInputBorder", "FloatBorder")
-    -- link("SnacksPickerInputTitle",  "Title")
-    -- link("SnacksPickerBoxTitle",    "Title")
-    -- link("SnacksPickerSelected",    "Visual")
-    -- link("SnacksPickerToggle",      "Boolean")        -- tweak to taste
-    -- link("SnacksPickerPickWinCurrent", "Search")      -- current window label
-    -- link("SnacksPickerPickWin",        "IncSearch")   -- other window labels
-    -- (Optional) generic fallbacks
-    link("SnacksPicker",           "NormalFloat")
-    link("SnacksPickerBorder",     "FloatBorder")
-    link("SnacksPickerTitle",      "Title")
   end,
 })
 
--- Ensure it runs now for the current theme
-vim.cmd("doautocmd ColorScheme")
+-- local snacks = require('snacks')
+-- snacks.setup({})
+
+vim.keymap.set("n", "x", vim.lsp.buf.format)
+vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
+vim.keymap.set("n", "gr", vim.lsp.buf.references)
+vim.keymap.set("n", "K", vim.lsp.buf.hover)
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+
+-- Diagnostics
+vim.diagnostic.config({
+  virtual_lines = {
+    -- Only show virtual line diagnostics for the current cursor line
+    current_line = true,
+  },
+})
