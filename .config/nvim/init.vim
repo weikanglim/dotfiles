@@ -55,10 +55,12 @@ nmap <leader>bd :bdelete<CR>
 nmap <leader>bb :FzfLua buffers<CR>
 
 " Finding stuff
+nmap <leader><leader> :FzfLua files<CR>
 nmap <leader>ff :FzfLua files<CR>
 nmap <leader>fg :FzfLua grep<Space>
 nmap <leader>fh :FzfLua helptags<CR>
 nmap <leader>fR :FzfLua resume<CR>
+nmap <leader>fs :FzfLua lsp_document_symbols<CR>
 
 " Git
 nmap <leader>gl :FzfLua git_commits<CR>
