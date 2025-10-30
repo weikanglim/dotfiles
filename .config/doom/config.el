@@ -145,8 +145,20 @@ Place point under the date for a new entry."
     (re-search-backward (format "^\\*\\*\\* %s\\s-*$" (regexp-quote date)))
     (org-end-of-subtree t t)))
 
+(defun my/insert-date-subheading ()
+  "Insert a subheading with today's date, e.g. 'April 12, 2026 - Sunday'."
+  (interactive)
+  (let ((date-str (format-time-string "%B %-d, %Y - %A")))
+    (org-insert-subheading nil)
+    (insert date-str)))
+
 (after! org
   (add-to-list 'org-capture-templates
                '("j" "Journal" entry
                  (function my/org-journal-target)
                  "* %(my/org-part-of-day) [%<%-I:%M%p>]\n%?\n")))
+
+(map! :after org
+      :map org-mode-map
+      :localleader
+      :desc "Insert date subheading" "d" #'my/insert-date-subheading)

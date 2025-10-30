@@ -8,6 +8,7 @@ vim.pack.add({
 vim.lsp.enable({
     "lua_ls",
     "gopls",
+    "zls",
 })
 
 require("nvim-treesitter.configs").setup({
